@@ -3,7 +3,7 @@ mongoose.connect('mongodb://localhost/SDC_qna');
 
 const questionSchema = new mongoose.Schema({
   product_id: Number,
-  question_id: Number, //unique id
+  question_id: {type: Number, unique: true}, //unique id
   question_text: String,
   question_date: String, // timestamp variable?
   asker_name: String,
@@ -24,10 +24,11 @@ const questionSchema = new mongoose.Schema({
 
 const answerSchema = new mongoose.Schema({
   question_id: Number,
-  answer_id: Number, //unique id
+  answer_id: {type: Number, unique: true}, //unique id
   answer_text: String,
   answer_date: String, // timestamp variable?
   answer_name: String,
+  reported: {type: Boolean, default: false},
   helpfulness: {type: Number, default: 0},
   photos: [ { // populate / check for photos upon submission?
     id: Number,
