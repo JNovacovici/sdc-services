@@ -1,6 +1,17 @@
 const express = require('express');
+const questions = require('../database/question.js');
+const connectMongoDb = require('../config.js');
 const app = express();
-const port = 3000;
+const port = 3002;
+
+connectMongoDb();
+
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
+
+app.listen(port, () => {
+  console.log(`listening on ${port}`);
+});
 
 // product id will be req.query.productId
 
@@ -16,20 +27,61 @@ app.post('/qna', (req, res) => {
   Question routes
 */
 
-app.get('/qa/questions', (req, res) => {
-  var id = req.query.productId;
+app.get('/qa/questions', async (req, res) => {
+  var productId = req.query.product_id;
+  console.log(req.query);
+  try {
+    var questionData = await questions.find({ product_id: productId });
+    console.log('this is questions from DB', questionData);
+    if (questionData.length > 0) {
+      var resultObj = {
+        'product_id': productId,
+        'results': questionData
+      }
+      res.status(200);
+      res.json(resultObj);
+    } else {
+      res.status(200);
+      res.json({ product_id: productId, results: [] });
+    }
+  } catch (err) {
+    res.status(400);
+    res.send(err.message);
+  }
 });
 
 app.post('/qa/questions', (req, res) => {
 
 });
 
-app.put('/qa/questions/:question_id/helpful', (req, res) => {
-
+app.put('/qa/questions/:question_id/helpful', async (req, res) => {
+  var questionId = req.query.question_id;
+  try {
+    var helpfulQuestion = await QuestionsCollection.updateOne(
+      { 'results.question_id': questionId },
+      { $inc: { 'results.question_helpfulness': 1 } }
+      );
+      res.status(200);
+      res.send('SUCCESS HELPFUL QUESTION UPDATE');
+  } catch (err) {
+    res.status(400);
+    res.send(err.message);
+  }
 });
 
-app.put('/qa/questions/:question_id/report', (req, res) => {
-
+app.put('/qa/questions/:question_id/report', async (req, res) => {
+  var questionId = req.query.question_id;
+  try {
+    var reportedQuestion = await QuestionsCollection.updateOne(
+      { 'results.question_id': questionId },
+      { $set: { 'results.reported': true } }
+      );
+      res.status(200);
+      res.send('Question Reported');
+  } catch (err) {
+    res.status(400);
+    res.send(err.message);
+  }
 });
 
 /*
@@ -44,12 +96,34 @@ app.post('/qa/questions/:question_id/answers', (req, res) => {
 
 });
 
-app.put('/qa/answers/:answer_id/helpful', (req, res) => {
-
+app.put('/qa/answers/:answer_id/helpful', async (req, res) => {
+  var answerId = req.query.answer_id;
+  try {
+    var helpfulAnswer = await AnswersCollection.updateOne(
+      { 'results.answer_id': answerId },
+      { $inc: { 'results.helpfulness': 1 } }
+      );
+      res.status(200);
+      res.send('SUCCESS HELPFUL ANSWER UPDATE');
+  } catch (err) {
+    res.status(400);
+    res.send(err.message);
+  }
 });
 
-app.put('/qa/answers/:answer_id/report', (req, res) => {
-
+app.put('/qa/answers/:answer_id/report', async (req, res) => {
+  var answerId = req.query.answer_id;
+  try {
+    var reportedAnswer = await AnswersCollection.updateOne(
+      { 'results.answer_id': answerId },
+      { $set: { 'results.reported': true } }
+      );
+      res.status(200);
+      res.send('Answer Reported');
+  } catch (err) {
+    res.status(400);
+    res.send(err.message);
+  }
 });
 
 module.exports = app;

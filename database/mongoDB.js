@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
-mongoose.connect('mongodb://localhost/SDC_qna');
+// mongoose.connect('mongodb://localhost/SDC_qna');
 
-const questionSchema = new mongoose.Schema({
-  question_id: {type: Number, unique: true}, //unique id
-  product_id: Number,
-  body: String,
-  date_written: {type: String, default: new Date().toISOString()}, // timestamp variable?
-  asker_name: String,
-  asker_email: String,
-  reported: {type: Boolean, default: false}
-  helpful: {type: Number, default: 0}
-});
+// const questionSchema = new mongoose.Schema({
+//   question_id: {type: Number, unique: true}, //unique id
+//   product_id: Number,
+//   body: String,
+//   date_written: {type: String, default: new Date().toISOString()}, // timestamp variable?
+//   asker_name: String,
+//   asker_email: String,
+//   reported: {type: Boolean, default: false},
+//   helpful: {type: Number, default: 0}
+// });
 
-questionSchema.plugin(AutoIncrement, {
-  inc_field: 'question_id', start_seq: 3518964
-});
+// questionSchema.plugin(AutoIncrement, {
+//   inc_field: 'question_id', start_seq: 3518964
+// });
 
 const answerSchema = new mongoose.Schema({
   question_id: Number,
@@ -43,6 +43,6 @@ photosSchema.plugin(AutoIncrement, {
   inc_field: 'id', start_seq: 2063760
 });
 
-const questions = mongoose.model('questions', questionSchema);
-const answers = mongoose.model('answers', answerSchema);
-const photos = mongoose.model('photos', photosSchema);
+// const questions = mongoose.model('questions', questionSchema);
+// const answers = mongoose.model('answers', answerSchema);
+// const photos = mongoose.model('photos', photosSchema);
