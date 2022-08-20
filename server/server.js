@@ -27,11 +27,37 @@ app.post('/qna', (req, res) => {
   Question routes
 */
 
+//Example of questions get
+
+// {
+//   product_id: '71697',
+//   results: [
+//     {
+//       question_id: 641733,
+//       question_body: 'Why did you like the product or not?',
+//       question_date: '2022-06-14T00:00:00.000Z',
+//       asker_name: 'Tyler',
+//       question_helpfulness: 5,
+//       reported: false,
+//       answers: [Object]
+//     },
+//     {
+//       question_id: 642599,
+//       question_body: 'I wodner how...\nI just do...',
+//       question_date: '2022-07-30T00:00:00.000Z',
+//       asker_name: 'zz',
+//       question_helpfulness: 1,
+//       reported: false,
+//       answers: {}
+//     }
+//   }
+
 app.get('/qa/questions', async (req, res) => {
   var productId = req.query.product_id;
   console.log(req.query);
   try {
     var questionData = await questions.find({ product_id: productId });
+    // for each question, need to find answers based on that question_id and add in to an object of answers, followed by a key value pair of answer_id : object data
     console.log('this is questions from DB', questionData);
     if (questionData.length > 0) {
       var resultObj = {
