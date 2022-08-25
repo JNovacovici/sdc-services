@@ -1,5 +1,6 @@
 const express = require('express');
 const questions = require('../database/question.js');
+const answers = require('../database/answers.js');
 const connectMongoDb = require('../config.js');
 const app = express();
 const port = 3002;
@@ -53,17 +54,33 @@ app.post('/qna', (req, res) => {
 //   }
 
 app.get('/qa/questions', async (req, res) => {
+  var results = [];
   var productId = req.query.product_id;
-  console.log(req.query);
+  // console.log(req.query);
   try {
     var questionData = await questions.find({ product_id: productId });
+    questionData = questionData.map(question => question.toJSON());
     // for each question, need to find answers based on that question_id and add in to an object of answers, followed by a key value pair of answer_id : object data
-    console.log('this is questions from DB', questionData);
+    // console.log('this is questions from DB', questionData);
     if (questionData.length > 0) {
+      for (var i = 0; i < questionData.length; i++) {
+        var questionId = questionData[i].question_id;
+        var answerData = await answers.find({ question_id: questionId });
+        answersObj = {};
+        for (var j = 0; j < answerData.length; j++) {
+          //create key value pair of answer_id : object of data related to that answer_id
+          const answer = answerData[j].toJSON();
+          answer['photos'] = eval(answer['photos']);
+          answersObj[answerData[j].id] = answer;
+        }
+        //push into question object of the key 'answers' and value of inner data
+        questionData[i]['answers'] = answersObj;
+      }
       var resultObj = {
         'product_id': productId,
         'results': questionData
       }
+      // console.log( resultObj.results);
       res.status(200);
       res.json(resultObj);
     } else {
@@ -81,11 +98,12 @@ app.post('/qa/questions', (req, res) => {
 });
 
 app.put('/qa/questions/:question_id/helpful', async (req, res) => {
-  var questionId = req.query.question_id;
+  var questionId = req.params.question_id;
+  console.log('entering the helpful question button');
   try {
-    var helpfulQuestion = await QuestionsCollection.updateOne(
-      { 'results.question_id': questionId },
-      { $inc: { 'results.question_helpfulness': 1 } }
+    var helpfulQuestion = await questions.updateOne(
+      { 'question_id': questionId },
+      { $inc: { 'question_helpfulness': 1 } }
       );
       res.status(200);
       res.send('SUCCESS HELPFUL QUESTION UPDATE');
@@ -96,11 +114,12 @@ app.put('/qa/questions/:question_id/helpful', async (req, res) => {
 });
 
 app.put('/qa/questions/:question_id/report', async (req, res) => {
-  var questionId = req.query.question_id;
+  var questionId = req.params.question_id;
+  console.log('entering the report question button');
   try {
-    var reportedQuestion = await QuestionsCollection.updateOne(
-      { 'results.question_id': questionId },
-      { $set: { 'results.reported': true } }
+    var reportedQuestion = await questions.updateOne(
+      { 'question_id': questionId },
+      { $set: { 'reported': true } }
       );
       res.status(200);
       res.send('Question Reported');
@@ -123,11 +142,14 @@ app.post('/qa/questions/:question_id/answers', (req, res) => {
 });
 
 app.put('/qa/answers/:answer_id/helpful', async (req, res) => {
-  var answerId = req.query.answer_id;
+  var answerId = req.params.answer_id;
+  console.log(req.query);
+  console.log(req.params);
+  console.log('entering the helpful answer button');
   try {
-    var helpfulAnswer = await AnswersCollection.updateOne(
-      { 'results.answer_id': answerId },
-      { $inc: { 'results.helpfulness': 1 } }
+    var helpfulAnswer = await answers.updateOne(
+      { 'id': answerId },
+      { $inc: { 'helpfulness': 1 } }
       );
       res.status(200);
       res.send('SUCCESS HELPFUL ANSWER UPDATE');
@@ -138,11 +160,12 @@ app.put('/qa/answers/:answer_id/helpful', async (req, res) => {
 });
 
 app.put('/qa/answers/:answer_id/report', async (req, res) => {
-  var answerId = req.query.answer_id;
+  var answerId = req.params.answer_id;
+  console.log('entering the report answer button');
   try {
-    var reportedAnswer = await AnswersCollection.updateOne(
-      { 'results.answer_id': answerId },
-      { $set: { 'results.reported': true } }
+    var reportedAnswer = await answers.updateOne(
+      { 'id': answerId },
+      { $set: { 'reported': true } }
       );
       res.status(200);
       res.send('Answer Reported');
