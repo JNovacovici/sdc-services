@@ -4,7 +4,7 @@
   "description": "SDC back-end services on the Questions and Answers widget derived from the FEC project",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "start": "nodemon server/server.js"
   },
   "repository": {
