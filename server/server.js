@@ -93,8 +93,15 @@ app.get('/qa/questions', async (req, res) => {
   }
 });
 
-app.post('/qa/questions', (req, res) => {
-
+app.post('/qa/questions', async (req, res) => {
+  try {
+    var newQuestion = await questions.create({question_body: req.body.body, asker_name: req.body.name, asker_email: req.body.email, product_id: req.body.product_id});
+    res.status(201);
+    res.send('Question created');
+  } catch (err) {
+    res.status(400);
+    res.send(err.message);
+  }
 });
 
 app.put('/qa/questions/:question_id/helpful', async (req, res) => {
@@ -105,7 +112,7 @@ app.put('/qa/questions/:question_id/helpful', async (req, res) => {
       { 'question_id': questionId },
       { $inc: { 'question_helpfulness': 1 } }
       );
-      res.status(200);
+      res.status(204);
       res.send('SUCCESS HELPFUL QUESTION UPDATE');
   } catch (err) {
     res.status(400);
@@ -121,7 +128,7 @@ app.put('/qa/questions/:question_id/report', async (req, res) => {
       { 'question_id': questionId },
       { $set: { 'reported': true } }
       );
-      res.status(200);
+      res.status(204);
       res.send('Question Reported');
   } catch (err) {
     res.status(400);
@@ -133,25 +140,28 @@ app.put('/qa/questions/:question_id/report', async (req, res) => {
   Answer routes
 */
 
-app.get('/qa/questions/:question_id/answers', (req, res) => {
-
-});
-
-app.post('/qa/questions/:question_id/answers', (req, res) => {
-
+app.post('/qa/questions/:question_id/answers', async (req, res) => {
+  try {
+    var newAnswer = await answers.create({ body: req.body.body, answerer_name: req.body.name, answerer_email: req.body.email, photos: req.body.photos, question_id: req.params.question_id});
+    // console.log(newAnswer);
+    // console.log('these are the photos', req.body.photos);
+    res.status(201);
+    res.send('Answer created');
+  } catch (err) {
+    res.status(400);
+    res.send(err.message);
+  }
 });
 
 app.put('/qa/answers/:answer_id/helpful', async (req, res) => {
   var answerId = req.params.answer_id;
-  console.log(req.query);
-  console.log(req.params);
   console.log('entering the helpful answer button');
   try {
     var helpfulAnswer = await answers.updateOne(
       { 'id': answerId },
       { $inc: { 'helpfulness': 1 } }
       );
-      res.status(200);
+      res.status(204);
       res.send('SUCCESS HELPFUL ANSWER UPDATE');
   } catch (err) {
     res.status(400);
@@ -167,7 +177,7 @@ app.put('/qa/answers/:answer_id/report', async (req, res) => {
       { 'id': answerId },
       { $set: { 'reported': true } }
       );
-      res.status(200);
+      res.status(204);
       res.send('Answer Reported');
   } catch (err) {
     res.status(400);

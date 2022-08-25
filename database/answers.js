@@ -10,7 +10,7 @@ const answerSchema = new mongoose.Schema({
   reported: {type: Boolean, default: false},
   date: {type: Date, default: Date.now}, // {type: String, default: new Date().toISOString()}  timestamp variable?
   helpfulness: {type: Number, default: 0},
-  photos: {default: []}
+  photos: [String]
 });
 
 answerSchema.plugin(AutoIncrement, {
