@@ -99,6 +99,7 @@ app.post('/qa/questions', async (req, res) => {
     res.status(201);
     res.send('Question created');
   } catch (err) {
+    console.log(req.body);
     res.status(400);
     res.send(err.message);
   }
