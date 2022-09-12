@@ -56,9 +56,11 @@ app.post('/qna', (req, res) => {
 app.get('/qa/questions', async (req, res) => {
   var results = [];
   var productId = req.query.product_id;
-  // console.log(req.query);
+  console.log(req.query);
   try {
+    console.log('before await');
     var questionData = await questions.find({ product_id: productId });
+    console.log('after await');
     questionData = questionData.map(question => question.toJSON());
     // for each question, need to find answers based on that question_id and add in to an object of answers, followed by a key value pair of answer_id : object data
     // console.log('this is questions from DB', questionData);
